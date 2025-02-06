@@ -1,0 +1,19 @@
+{
+    "title": "Audio-App",
+    "downloading": "Herunterladen...",
+    "cancel": "Abbrechen",
+    "enter_audio_id": "Audio-ID eingeben",
+    "search": "Suche",
+    "scan": "Scannen",
+    "gallery": "Galerie",
+    "play_pause": "Abspielen/Pause",
+    "previous": "Vorherige",
+    "next": "Nächste",
+    "volume_up": "Lauter",
+    "volume_down": "Leiser",
+    "audio_id": "Audio-ID: ",
+    "size": "Größe: ",
+    "title_label": "Titel: ",
+    "artist": "Künstler: ",
+    "date": "Datum: "
+}

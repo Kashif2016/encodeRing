@@ -1,0 +1,19 @@
+{
+    "title": "オーディオアプリ",
+    "downloading": "ダウンロード中...",
+    "cancel": "キャンセル",
+    "enter_audio_id": "オーディオIDを入力",
+    "search": "検索",
+    "scan": "スキャン",
+    "gallery": "ギャラリー",
+    "play_pause": "再生/一時停止",
+    "previous": "前へ",
+    "next": "次へ",
+    "volume_up": "音量を上げる",
+    "volume_down": "音量を下げる",
+    "audio_id": "オーディオID: ",
+    "size": "サイズ: ",
+    "title_label": "タイトル: ",
+    "artist": "アーティスト: ",
+    "date": "日付: "
+}
