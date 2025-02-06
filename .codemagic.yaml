@@ -1,0 +1,23 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    instance_type: mac_mini_m1 # macOS machine type
+    max_build_duration: 120
+    environment:
+      flutter: stable  # Flutter version
+      xcode: latest    # Latest Xcode version
+      cocoapods: default # Automatically installs CocoaPods
+    scripts:
+      # Step 1: Install dependencies
+      - name: Install Flutter dependencies
+        script: |
+          flutter pub get
+          cd ios && pod install
+      
+      # Step 2: Build the iOS app
+      - name: Build iOS App
+        script: flutter build ios --release --no-codesign
+
+    artifacts:
+      # Define the files or directories to store as artifacts (e.g., the .ipa file)
+      - ios/build/**/*.ipa
