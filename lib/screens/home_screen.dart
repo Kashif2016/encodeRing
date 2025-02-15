@@ -103,37 +103,37 @@ class HomeScreenState extends State<HomeScreen> {
               color: Colors.white,
             ),
           ),
+          SizedBox(height: 15.0),
+          Text(
+            Translations.getTranslation(_languageCode, 'enter_product_id'),
+            style: TextStyle(
+              fontSize: 15.0,
+              color: Colors.white,
+            ),
+          ),
           SizedBox(height: 35.0),
           TextField(
             controller: _controller,
             decoration: InputDecoration(
-              hintText: Translations.getTranslation(
-                  _languageCode, 'enter_audio_id'), // Placeholder text
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(12.0), // Increased border radius
+              ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Colors.grey,
             ),
           ),
           SizedBox(height: 25.0),
-          ElevatedButton(
-            onPressed: () {
-              _currentAudio = null; // Clear the current audio
-              final trimmedText = _controller.text.replaceAll(' ', '');
-              _audioFunctions.fetchAudio(context, trimmedText);
-              FocusScope.of(context)
-                  .requestFocus(FocusNode()); // Close the keyboard
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black, // Background color
-              foregroundColor: Colors.white, // Text color
-              padding: EdgeInsets.symmetric(
-                  horizontal: 50, vertical: 15), // Button padding
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(8.0), // Reduced corner rounding
+          GestureDetector(
+            onTap: () => _audioFunctions.scanQR(context, _controller),
+            child: Text(
+              Translations.getTranslation(_languageCode, 'enter_with_qr'),
+              style: TextStyle(
+                fontSize: 10.0,
+                color: Colors.white, // Change color to indicate it's clickable
+                decoration: TextDecoration.none, // Remove underline
               ),
             ),
-            child: Text(Translations.getTranslation(_languageCode, 'download')),
           ),
         ],
       ),
@@ -146,22 +146,8 @@ class HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton(
-            onPressed: () => _audioFunctions.scanQR(context, _controller),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black, // Background color
-              foregroundColor: Colors.white, // Text color
-              padding: EdgeInsets.symmetric(
-                  horizontal: 50, vertical: 15), // Button padding
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(8.0), // Reduced corner rounding
-              ),
-            ),
-            child: Text(Translations.getTranslation(_languageCode, 'scan')),
-          ),
-          ElevatedButton(
-            onPressed: () async {
+          GestureDetector(
+            onTap: () async {
               final file = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AudioListScreen()),
@@ -182,17 +168,35 @@ class HomeScreenState extends State<HomeScreen> {
                 _audioFunctions.audioPlayer.play();
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black, // Background color
-              foregroundColor: Colors.white, // Text color
-              padding: EdgeInsets.symmetric(
-                  horizontal: 50, vertical: 15), // Button padding
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(8.0), // Reduced corner rounding
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.home_outlined, size: 30.0, color: Colors.white),
+                SizedBox(height: 5.0),
+                Text(
+                  Translations.getTranslation(_languageCode, 'home'),
+                  style: TextStyle(fontSize: 10.0, color: Colors.white),
+                ),
+              ],
             ),
-            child: Text(Translations.getTranslation(_languageCode, 'recent')),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {},
+                child: Column(
+                  children: [
+                    Icon(Icons.add, size: 30.0, color: Colors.white),
+                    SizedBox(height: 5.0),
+                    Text(
+                      Translations.getTranslation(_languageCode, 'plus'),
+                      style: TextStyle(fontSize: 10.0, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

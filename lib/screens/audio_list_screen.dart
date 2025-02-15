@@ -7,6 +7,7 @@ import 'dart:ui';
 import 'package:audio_player_app/translations.dart';
 import 'package:audio_player_app/screens/play_audio_screen.dart';
 import 'package:audio_player_app/screens/home_screen.dart'; // Import HomeScreen
+import 'package:audio_player_app/utils/audio_functions.dart';
 
 class AudioListScreen extends StatefulWidget {
   const AudioListScreen({super.key});
@@ -18,6 +19,8 @@ class AudioListScreen extends StatefulWidget {
 class AudioListScreenState extends State<AudioListScreen> {
   List<FileSystemEntity> _audioFiles = [];
   late String _languageCode;
+  final TextEditingController _controller = TextEditingController();
+  late final AudioFunctions _audioFunctions;
 
   @override
   void initState() {
@@ -25,6 +28,7 @@ class AudioListScreenState extends State<AudioListScreen> {
     _loadAudioFiles();
     _setLanguageCode();
     _setFullScreenMode();
+    _audioFunctions = AudioFunctions(context);
   }
 
   void _setLanguageCode() {
@@ -182,8 +186,54 @@ class AudioListScreenState extends State<AudioListScreen> {
     return false;
   }
 
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 50.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          GestureDetector(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.home_outlined, size: 30.0, color: Colors.white),
+                SizedBox(height: 5.0),
+                Text(
+                  Translations.getTranslation(_languageCode, 'home'),
+                  style: TextStyle(fontSize: 10.0, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, size: 30.0, color: Colors.white),
+                SizedBox(height: 5.0),
+                Text(
+                  Translations.getTranslation(_languageCode, 'plus'),
+                  style: TextStyle(fontSize: 10.0, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     final crossAxisCount = isLandscape ? 3 : 2;
@@ -191,62 +241,122 @@ class AudioListScreenState extends State<AudioListScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: Colors.black, // Set the background color to black
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.count(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-            children: List.generate(_audioFiles.length, (index) {
-              final file = _audioFiles[index] as File;
-              return Card(
-                color: Colors
-                    .black, // Set the background color of the card to black
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+        backgroundColor: Colors.black,
+        body: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    // Show the first audio file at the top
+                    if (_audioFiles.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 18.0),
+                        child: Stack(
+                          children: [
+                            Card(
+                              color: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                              ),
+                              child: InkWell(
+                                onTap: () => _audioFunctions.scanQR(
+                                    context, _controller),
+                                onLongPress: () {
+                                  _showDeleteConfirmationDialog(
+                                      context, _audioFiles[0] as File);
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  child: Image.asset(
+                                    'assets/images/defaultAudioImage.jpg',
+                                    width: screenWidth *
+                                        2 /
+                                        3, // Two-thirds of the screen width
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 8.0,
+                              left: 8.0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  _audioFiles[0].path.split('/').last,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Grid of remaining audio files
+                    if (_audioFiles.length > 1)
+                      Expanded(
+                        child: GridView.count(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                          children:
+                              List.generate(_audioFiles.length - 1, (index) {
+                            final file = _audioFiles[index + 1] as File;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .start, // Align column to the start
+                              children: [
+                                Card(
+                                  color: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () => _audioFunctions.scanQR(
+                                        context, _controller),
+                                    onLongPress: () {
+                                      _showDeleteConfirmationDialog(
+                                          context, file);
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      child: Image.asset(
+                                        'assets/images/defaultAudioImage.jpg',
+                                        width: screenWidth *
+                                            1 /
+                                            3, // Half of the remaining 2/3 screen height
+                                        fit: BoxFit.fitWidth,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    file.path.split('/').last,
+                                    textAlign: TextAlign
+                                        .start, // Align text to the left
+                                    style: TextStyle(
+                                        fontSize: 13, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
+                  ],
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlayAudioScreen(
-                            audioId: file.path.split('/').last,
-                            imageUrl: 'assets/images/defaultAudioImage.jpg',
-                            audioUrl: file.path,
-                          ),
-                        ),
-                      );
-                    },
-                    onLongPress: () {
-                      _showDeleteConfirmationDialog(context, file);
-                    },
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Image.asset(
-                            'assets/images/defaultAudioImage.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            file.path.split('/').last,
-                            textAlign: TextAlign.left, // Align text to the left
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
+              ),
+            ),
+            _buildActionButtons(),
+          ],
         ),
       ),
     );

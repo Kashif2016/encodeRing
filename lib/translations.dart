@@ -26,6 +26,13 @@ class Translations {
       'ok': 'OK',
       'download': 'Download',
       'input': 'Input',
+
+      // new
+      'enter_product_id':
+          'Please enter the product ID\nlisted on the warranty card.',
+      'enter_with_qr': 'Enter with QR code >',
+      'home': 'Home',
+      'plus': 'Plus',
     },
     'de': {
       'title': 'Encode',
