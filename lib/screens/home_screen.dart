@@ -107,8 +107,8 @@ class HomeScreenState extends State<HomeScreen> {
           TextField(
             controller: _controller,
             decoration: InputDecoration(
-              labelText:
-                  Translations.getTranslation(_languageCode, 'enter_audio_id'),
+              hintText: Translations.getTranslation(
+                  _languageCode, 'enter_audio_id'), // Placeholder text
               border: OutlineInputBorder(),
               filled: true,
               fillColor: Colors.white,

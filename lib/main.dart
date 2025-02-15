@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Future<bool> _checkDate() async {
     // Replace with your actual date checking logic
     final currentDate = DateTime.now();
-    final expiryDate = DateTime(2025, 02, 09); // Example expiry date
+    final expiryDate = DateTime(2025, 02, 24); // Example expiry date
     return currentDate.isBefore(expiryDate);
   }
 
