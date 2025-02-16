@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'package:audio_player_app/translations.dart';
 import 'dart:ui';
+import 'dart:convert';
 
 class Audio {
   final String id;
@@ -66,13 +67,25 @@ class AudioProvider with ChangeNotifier {
       final directory = await getDownloadDirectory();
       final file = await getFile(directory, id);
 
+      // Download audio file details
+      final detailsResponse =
+          await http.get(Uri.parse('${Config.audioFileDetailsUrl}/$id'));
+      if (detailsResponse.statusCode != 200) {
+        throw Exception('Failed to download audio file details');
+      }
+
+      final details = jsonDecode(detailsResponse.body)['data'];
+      final imageUrl = details[5] ?? "assets/images/defaultAudioImage.jpg";
+      final characterName = details[6] ?? "";
+      final title = details[9] ?? "";
+
       // Manually manage audio file details
       final fileName = "$id.wav";
       final audio = Audio(
         id: fileName,
-        title: fileName,
-        artist: Translations.getTranslation(_languageCode, 'unknown_artist'),
-        imageUrl: 'assets/images/defaultAudioImage.jpg',
+        title: title,
+        artist: characterName,
+        imageUrl: imageUrl,
         url: file.path,
         date: DateTime.now().toString(),
       );
@@ -104,7 +117,7 @@ class AudioProvider with ChangeNotifier {
     } else {
       // Download the audio file
       final audioFileResponse =
-          await http.get(Uri.parse('${Config.baseUrl}/$id.wav'));
+          await http.get(Uri.parse('${Config.audioFileUrl}/$id.wav'));
       if (audioFileResponse.statusCode != 200) {
         throw Exception('Failed to download audio file');
       }
@@ -117,6 +130,14 @@ class AudioProvider with ChangeNotifier {
     }
 
     return file;
+  }
+
+  Future<String> _downloadImage(String imageUrl) async {
+    final response = await http.get(Uri.parse(imageUrl));
+    final documentDirectory = await getApplicationDocumentsDirectory();
+    final file = File('${documentDirectory.path}/image.jpg');
+    file.writeAsBytesSync(response.bodyBytes);
+    return file.path;
   }
 
   Future<Directory> getDownloadDirectory() async {

@@ -19,7 +19,22 @@ class QRScanScreen extends StatefulWidget {
 }
 
 class QRScanScreenState extends State<QRScanScreen> {
-  final MobileScannerController controller = MobileScannerController();
+  final MobileScannerController controller = MobileScannerController(
+    formats: [
+      BarcodeFormat.qrCode,
+      BarcodeFormat.aztec,
+      BarcodeFormat.code128,
+      BarcodeFormat.code39,
+      BarcodeFormat.code93,
+      BarcodeFormat.dataMatrix,
+      BarcodeFormat.ean13,
+      BarcodeFormat.ean8,
+      BarcodeFormat.itf,
+      BarcodeFormat.pdf417,
+      BarcodeFormat.upcA,
+      BarcodeFormat.upcE,
+    ],
+  );
   final Logger _logger = Logger('QRScanScreen');
   late String _languageCode;
   late AudioFunctions _audioFunctions;
@@ -54,30 +69,121 @@ class QRScanScreenState extends State<QRScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: MobileScanner(
-        controller: controller,
-        onDetect: (BarcodeCapture barcodeCapture) async {
-          final String? code = barcodeCapture.barcodes.first.rawValue;
-          if (code != null && mounted) {
-            final audioId = _extractAudioId(code);
-            if (audioId != null) {
-              _logger.info('audioId: $audioId');
-              widget.onScanned(audioId);
-              controller.stop(); // Stop the scanner
-              await _handleScannedCode(audioId);
-            } else {
-              _logger.warning('No audio ID found in the scanned text');
-            }
-          }
-        },
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: controller,
+            onDetect: (BarcodeCapture barcodeCapture) async {
+              final String? code = barcodeCapture.barcodes.first.rawValue;
+              if (code != null && mounted) {
+                final audioId = _extractAudioId(code);
+                if (audioId != null) {
+                  _logger.info('audioId: $audioId');
+                  widget.onScanned(audioId);
+                  controller.stop(); // Stop the scanner
+                  await _handleScannedCode(audioId);
+                } else {
+                  _logger.warning('No audio ID found in the scanned text');
+                }
+              }
+            },
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 150.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                height: MediaQuery.of(context).size.width * 0.6,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.white, width: 4),
+                            left: BorderSide(color: Colors.white, width: 4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.white, width: 4),
+                            right: BorderSide(color: Colors.white, width: 4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.white, width: 4),
+                            left: BorderSide(color: Colors.white, width: 4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.white, width: 4),
+                            right: BorderSide(color: Colors.white, width: 4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                Translations.getTranslation(_languageCode, 'scan'),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   String? _extractAudioId(String url) {
-    _logger.info('Scanned link: $url');
-    final uri = Uri.parse(url);
-    return uri.queryParameters['audio'];
+    String audioId = url.split('/').last;
+    if (audioId.endsWith('.wav')) {
+      audioId = audioId.replaceAll('.wav', '');
+    }
+    return audioId;
   }
 
   Future<void> _handleScannedCode(String code) async {

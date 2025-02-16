@@ -33,6 +33,7 @@ class Translations {
       'enter_with_qr': 'Enter with QR code >',
       'home': 'Home',
       'plus': 'Plus',
+      'ready': 'Ready',
     },
     'de': {
       'title': 'Encode',
